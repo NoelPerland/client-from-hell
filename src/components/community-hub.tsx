@@ -280,10 +280,12 @@ export function CommunityHub({
             <button type="button" onClick={() => { setMessage(""); setDialog("auth"); }}>Log in</button>
           )
         ) : null}
+        {sessionReady && !player && run ? <span>Log in to add a high score</span> : null}
         {run ? (
           <button
             type="button"
-            className="is-save"
+            className="is-save cfh-bar-save"
+            data-save-score
             disabled={busy || savedRunId === run.runId}
             onClick={() => void saveRun()}
           >

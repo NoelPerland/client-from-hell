@@ -10,8 +10,8 @@ export const difficultyRules: Record<
   { rounds: number }
 > = {
   easy: { rounds: 4 },
-  normal: { rounds: 5 },
-  hell: { rounds: 6 },
+  normal: { rounds: 6 },
+  hell: { rounds: 8 },
 };
 
 export function calculateVerifiedRun(

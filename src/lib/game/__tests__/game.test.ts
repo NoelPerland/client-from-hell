@@ -97,7 +97,7 @@ describe("scoring boundaries", () => {
     }];
 
     expect(calculateGameResult([], activeScenarios).total).toBe(50);
-    expect(calculateGameResult(firstGreat, activeScenarios).total).toBe(60);
+    expect(calculateGameResult(firstGreat, activeScenarios).total).toBe(58);
   });
 });
 
@@ -140,6 +140,23 @@ describe("scenario validation and state", () => {
         expect(deltas.some((value) => value < 0), choice.id).toBe(true);
       }
     }
+  });
+
+  it("keeps the three card roles stable while rotating the best move", () => {
+    for (const scenario of scenarios) {
+      expect(scenario.choices.map((choice) => choice.tone).sort()).toEqual([
+        "direct",
+        "professional",
+        "risky",
+      ]);
+    }
+
+    const winningTones = new Set(
+      scenarios.map(
+        (scenario) => scenario.choices.find((choice) => choice.outcome === "great")!.tone,
+      ),
+    );
+    expect(winningTones).toEqual(new Set(["professional", "risky", "direct"]));
   });
 
   it("keeps correct moves from dominating both visible tradeoff numbers", () => {

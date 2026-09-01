@@ -849,12 +849,54 @@ h1, h2, h3,
 .cfh-debrief-result dt { color: var(--cyan); font-family: var(--font-geist-mono), monospace; font-size: 0.68rem; font-weight: 900; text-transform: uppercase; }
 .cfh-debrief-result dd { margin: 0; color: var(--muted); font-size: 0.83rem; line-height: 1.42; }
 .cfh-actions { flex-wrap: wrap; gap: 10px; }
-.cfh-actions button { padding: 10px 14px; background: var(--yellow); color: var(--ink); }
+.cfh-actions button { display: inline-flex; align-items: center; gap: 7px; padding: 10px 14px; background: var(--yellow); color: var(--ink); }
 .cfh-actions button:last-child { background: var(--red); color: white; }
+.cfh-handoff {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--ui-border, var(--panel-light));
+  border-radius: 7px;
+  background: var(--surface-raised, var(--panel-light));
+}
+.cfh-handoff > div { display: grid; gap: 4px; }
+.cfh-handoff strong { color: var(--cyan); font-family: var(--font-geist-mono), monospace; font-size: 0.72rem; text-transform: uppercase; }
+.cfh-handoff p { font-size: 0.84rem; }
+.cfh-handoff.is-loading { border-color: var(--yellow); }
+.cfh-handoff.is-success { border-color: var(--green); }
+.cfh-handoff.is-error { border-color: var(--red); }
+.cfh-handoff a {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  color: var(--green);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.cfh-final-home {
+  width: fit-content;
+  min-height: 0;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--muted);
+  font-size: 0.7rem;
+  text-decoration: underline;
+}
+.cfh-final-home:hover,
+.cfh-final-home:focus-visible { box-shadow: none; transform: none; }
 
 .cfh-community-bar {
   position: fixed;
-  left: 18px;
+  left: auto;
+  right: 18px;
+  top: auto;
   bottom: 18px;
   z-index: 25;
   display: flex;
@@ -864,6 +906,15 @@ h1, h2, h3,
   border: 3px solid var(--ink);
   background: var(--panel);
   box-shadow: 5px 5px 0 var(--ink);
+}
+.cfh-community-bar > span {
+  align-self: center;
+  padding: 0 5px;
+  color: var(--muted);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .cfh-community-bar button,
@@ -879,6 +930,7 @@ h1, h2, h3,
 }
 
 .cfh-community-bar .is-save { background: var(--green); }
+.cfh-community-bar .cfh-bar-save { position: absolute; width: 1px; height: 1px; min-height: 0; overflow: hidden; padding: 0; border: 0; clip: rect(0 0 0 0); }
 .cfh-community-toast {
   position: fixed;
   left: 18px;
@@ -1377,10 +1429,21 @@ button:focus-visible {
 .cfh-theme-light.cfh-shell { background: var(--night); }
 
 .cfh-topbar { z-index: 20; min-height: 58px; }
-.cfh-topbar h1 {
+.cfh-title-link {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--paper);
+  font-family: var(--font-geist-mono), monospace;
   font-size: clamp(1.55rem, 3vw, 2.45rem);
+  font-weight: 900;
+  text-transform: none;
   text-shadow: 2px 0 var(--red), -2px 0 var(--cyan);
 }
+.cfh-title-link:hover,
+.cfh-title-link:focus-visible { box-shadow: none; transform: none; }
 .cfh-topbar-actions { gap: 10px; }
 
 .cfh-round,
@@ -1413,8 +1476,8 @@ button:focus-visible {
   display: grid;
   grid-template-columns: minmax(245px, 300px) minmax(0, 1fr);
   grid-template-areas:
-    "stats stats"
-    "boss console";
+    "boss console"
+    "stats console";
   gap: 22px;
   align-content: start;
   align-items: stretch;
@@ -1437,16 +1500,17 @@ button:focus-visible {
 
 .cfh-scoreboard {
   display: grid;
-  grid-template-columns: 116px repeat(3, minmax(0, 1fr));
-  gap: 22px;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 12px 14px;
   align-items: center;
-  padding: 14px 18px;
+  padding: 14px;
 }
 
 .cfh-rank {
-  min-height: 76px;
-  grid-template-columns: auto auto;
-  gap: 10px;
+  min-height: 64px;
+  grid-row: 1 / 4;
+  grid-template-columns: 1fr;
+  gap: 0;
   border: 0;
   border-radius: 6px;
   background: var(--yellow);
@@ -1456,7 +1520,7 @@ button:focus-visible {
 .cfh-rank span,
 .cfh-rank strong { align-self: center; }
 .cfh-rank span { font-size: 0.7rem; }
-.cfh-rank strong { font-size: 3.2rem; }
+.cfh-rank strong { font-size: 2.45rem; }
 
 .cfh-meter { gap: 8px; }
 .cfh-meter > div:first-child {
@@ -1497,10 +1561,49 @@ button:focus-visible {
 .cfh-request { gap: 10px; }
 .cfh-request h2 { font-size: clamp(1.18rem, 1.8vw, 1.65rem); }
 .cfh-request p {
-  padding-top: 12px;
-  border-top: 1px solid var(--ui-border);
   font-size: 0.95rem;
   font-weight: 550;
+}
+.cfh-request .cfh-speech-bubble {
+  position: relative;
+  margin-top: 8px;
+  padding: 14px;
+  border: 1px solid var(--ui-border);
+  border-radius: 7px;
+  background: var(--surface-raised);
+  color: var(--paper);
+}
+.cfh-request .cfh-speech-bubble::before {
+  position: absolute;
+  left: 20px;
+  top: -9px;
+  width: 15px;
+  height: 15px;
+  border-left: 1px solid var(--ui-border);
+  border-top: 1px solid var(--ui-border);
+  background: var(--surface-raised);
+  content: "";
+  transform: rotate(45deg);
+}
+.cfh-request h2:focus { outline: none; }
+.cfh-hint { margin-top: 2px; }
+.cfh-hint summary {
+  color: var(--cyan);
+  cursor: pointer;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.7rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.cfh-hint p {
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid var(--ui-border);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--cyan) 7%, var(--panel));
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
 }
 
 .cfh-console-head strong {
@@ -1509,11 +1612,18 @@ button:focus-visible {
   font-size: clamp(2rem, 4vw, 3.25rem);
   text-shadow: none;
 }
+.cfh-console-head > div { display: grid; gap: 4px; }
+.cfh-console-head > div p { color: var(--muted); font-size: 0.88rem; }
 .cfh-console-head strong b { font: inherit; }
 .cfh-console-head strong small {
   color: var(--muted);
   font-size: 0.38em;
   text-shadow: none;
+}
+.cfh-console-head strong small:first-child {
+  margin-right: 8px;
+  font-size: 0.23em;
+  text-transform: uppercase;
 }
 
 .cfh-choice-grid {
@@ -1573,7 +1683,7 @@ button:focus-visible {
   font-size: 0.88rem;
   font-weight: 550;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 5;
 }
 
 .cfh-stat-preview {
@@ -1604,9 +1714,9 @@ button:focus-visible {
   font-weight: 750;
 }
 
-.cfh-reaction {
+.cfh-resolution {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
   align-items: center;
   padding: 13px 15px;
@@ -1614,7 +1724,18 @@ button:focus-visible {
   border-radius: 6px;
   background: color-mix(in srgb, var(--cyan) 7%, var(--panel));
 }
-.cfh-reaction p { color: var(--muted); font-size: 0.9rem; line-height: 1.4; }
+.cfh-resolution p { display: grid; gap: 5px; color: var(--muted); font-size: 0.9rem; line-height: 1.4; }
+.cfh-resolution button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--cyan);
+  box-shadow: none;
+  color: var(--ink);
+}
 
 .cfh-settings {
   position: absolute;
@@ -1670,7 +1791,6 @@ button:focus-visible {
   font-family: var(--font-geist-mono), monospace;
   font-weight: 850;
 }
-.cfh-settings-title small { color: var(--muted); font-size: 0.66rem; text-transform: uppercase; }
 .cfh-settings-menu button {
   display: flex;
   min-height: 42px;
@@ -1714,7 +1834,7 @@ button:focus-visible {
 @media (max-width: 900px) {
   .cfh-playfield {
     grid-template-columns: 1fr;
-    grid-template-areas: "stats" "boss" "console";
+    grid-template-areas: "boss" "console" "stats";
   }
   .cfh-scoreboard {
     grid-template-columns: 96px repeat(3, minmax(0, 1fr));
@@ -1733,7 +1853,7 @@ button:focus-visible {
   .cfh-topbar { flex-direction: row; align-items: center; }
   .cfh-topbar > div:first-child .cfh-kicker { display: none; }
   .cfh-topbar-actions { width: auto; flex-wrap: nowrap; }
-  .cfh-topbar h1 { font-size: 1.3rem; }
+  .cfh-title-link { font-size: 1.3rem; }
   .cfh-difficulty-chip,
   .cfh-pressure { display: none; }
   .cfh-round { padding: 8px; font-size: 0.68rem; }
@@ -1766,11 +1886,14 @@ button:focus-visible {
   .cfh-choice { min-height: 142px; padding: 14px; }
   .cfh-choice em { -webkit-line-clamp: 2; }
   .cfh-debrief-result dl { grid-template-columns: 1fr; }
-  .cfh-reaction { grid-template-columns: 1fr; gap: 6px; }
+  .cfh-resolution { grid-template-columns: 1fr; gap: 10px; }
+  .cfh-resolution button { width: 100%; justify-content: center; }
+  .cfh-handoff { align-items: flex-start; flex-direction: column; }
   .cfh-home { padding: 72px 12px 82px; }
   .cfh-home-content { padding: 22px 14px; }
   .cfh-home h1 { font-size: clamp(2.7rem, 14vw, 4rem); }
   .cfh-home-copy { font-size: 0.9rem; }
+  .cfh-community-bar { left: 10px; right: 10px; top: auto; bottom: 10px; }
   .cfh-difficulty-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .cfh-difficulty-card {
     display: grid;

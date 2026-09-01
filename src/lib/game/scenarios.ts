@@ -88,7 +88,7 @@ export const scenarios = [
         label: "Issue a clean revision",
         response:
           "Create a revised proposal version with guest-count assumptions, added costs, and protected inclusions.",
-        tone: "protective",
+        tone: "risky",
         outcome: "great",
         delta: { budget: 9, timeline: -7, trust: 10, morale: -4, quality: 7, scope: 11 },
       },
@@ -97,7 +97,7 @@ export const scenarios = [
         label: "Absorb the increase",
         response:
           "Keep the price flat and quietly reduce service levels to make the numbers work.",
-        tone: "generous",
+        tone: "professional",
         outcome: "bad",
         delta: { budget: 15, timeline: 4, trust: -10, morale: -12, quality: -13, scope: -15 },
       },
@@ -162,7 +162,7 @@ export const scenarios = [
         label: "Add VIP package",
         response:
           "Create a premium addendum for suite handling, arrival flow, private dining, and dedicated on-site ownership.",
-        tone: "protective",
+        tone: "direct",
         outcome: "great",
         delta: { budget: -10, timeline: -8, trust: 11, morale: 8, quality: 12, scope: 10 },
       },
@@ -171,7 +171,7 @@ export const scenarios = [
         label: "Keep same package",
         response:
           "Tell the client the current proposal should be fine with a few informal adjustments.",
-        tone: "risky",
+        tone: "professional",
         outcome: "bad",
         delta: { budget: 10, timeline: 7, trust: -8, morale: -6, quality: -9, scope: -7 },
       },
@@ -180,7 +180,7 @@ export const scenarios = [
         label: "Overbuild the offer",
         response:
           "Upgrade every line item to luxury and send a dramatic new total.",
-        tone: "generous",
+        tone: "risky",
         outcome: "okay",
         delta: { budget: -11, timeline: -7, trust: 3, morale: 9, quality: 15, scope: -10 },
       },
@@ -208,7 +208,7 @@ export const scenarios = [
         label: "Keep editing live",
         response:
           "Continue changing the proposal in real time while the client invents new details.",
-        tone: "generous",
+        tone: "risky",
         outcome: "bad",
         delta: { budget: 5, timeline: 12, trust: -8, morale: 6, quality: -9, scope: -14 },
       },
@@ -220,6 +220,80 @@ export const scenarios = [
         tone: "direct",
         outcome: "okay",
         delta: { budget: 11, timeline: 10, trust: -5, morale: -4, quality: 4, scope: 9 },
+      },
+    ],
+  },
+  {
+    id: "allergy-list",
+    title: "The Allergy List Arrives Late",
+    setup:
+      "Dinner service starts tomorrow. The client sends a spreadsheet with severe allergies, preference notes, and no clear owner.",
+    clientMessage:
+      "We found twelve dietary notes in three email threads. You have this under control, yes?",
+    choices: [
+      {
+        id: "verbal-reassurance",
+        label: "Promise it is handled",
+        response:
+          "Reply immediately with reassurance, then ask each department to interpret the spreadsheet independently before service.",
+        tone: "professional",
+        outcome: "okay",
+        delta: { budget: 5, timeline: 9, trust: 4, morale: 6, quality: -7, scope: -6 },
+      },
+      {
+        id: "dietary-matrix",
+        label: "Build one service matrix",
+        response:
+          "Turn every dietary note into a named guest, meal, owner, kitchen confirmation, and final client sign-off before the menu locks.",
+        tone: "risky",
+        outcome: "great",
+        delta: { budget: -7, timeline: -10, trust: 13, morale: 8, quality: 14, scope: 9 },
+      },
+      {
+        id: "standard-menu-only",
+        label: "Enforce the standard menu",
+        response:
+          "Reject late dietary changes, serve the existing menu, and place responsibility for exceptions back on the client.",
+        tone: "direct",
+        outcome: "bad",
+        delta: { budget: 16, timeline: 11, trust: -14, morale: -13, quality: -8, scope: 10 },
+      },
+    ],
+  },
+  {
+    id: "signature-delay",
+    title: "Signature Deadline Slips Again",
+    setup:
+      "The date is being held without a deposit. A competing inquiry wants the same ballroom while the client asks for one more review.",
+    clientMessage:
+      "Legal needs another day. Please keep everything reserved and unchanged until we are comfortable.",
+    choices: [
+      {
+        id: "hold-indefinitely",
+        label: "Keep the hold open",
+        response:
+          "Protect the relationship by extending the venue hold with no deposit, deadline, or change to commercial terms.",
+        tone: "professional",
+        outcome: "bad",
+        delta: { budget: -13, timeline: -12, trust: 6, morale: 8, quality: 4, scope: -15 },
+      },
+      {
+        id: "pressure-discount",
+        label: "Offer a signing discount",
+        response:
+          "Add a short-lived discount to create urgency, even though the delay is legal approval rather than price resistance.",
+        tone: "risky",
+        outcome: "okay",
+        delta: { budget: -5, timeline: 15, trust: -4, morale: 7, quality: 3, scope: 5 },
+      },
+      {
+        id: "controlled-deadline",
+        label: "Set a controlled deadline",
+        response:
+          "Issue a final version with a clear hold expiry, deposit condition, and one named route for legal comments before release.",
+        tone: "direct",
+        outcome: "great",
+        delta: { budget: 10, timeline: 11, trust: 9, morale: -6, quality: 8, scope: 13 },
       },
     ],
   },
