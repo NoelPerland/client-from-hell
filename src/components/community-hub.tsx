@@ -58,9 +58,11 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 export function CommunityHub({
   run,
   theme,
+  inline = false,
 }: {
   run: CompletedRun | null;
   theme: "dark" | "light";
+  inline?: boolean;
 }) {
   const [player, setPlayer] = useState<Player | null>(null);
   const [sessionReady, setSessionReady] = useState(false);
@@ -270,7 +272,7 @@ export function CommunityHub({
   }
 
   return (
-    <div className={`cfh-community-root cfh-theme-${theme}`}>
+    <div className={`cfh-community-root cfh-theme-${theme}${inline ? " is-inline" : ""}`}>
       <div className="cfh-community-bar" aria-label="Player and leaderboard">
         <button type="button" onClick={() => void openLeaderboard()}>Top scores</button>
         {sessionReady ? (
