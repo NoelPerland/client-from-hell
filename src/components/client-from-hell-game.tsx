@@ -22,7 +22,7 @@ import {
   type ScenarioDefinition,
 } from "@/lib/game";
 import type { FinalWinningProposalInput } from "@/lib/proposales/types";
-import { CommunityHub } from "./community-hub";
+import { CommunityHub, type CompletedRun } from "./community-hub";
 
 type HandoffState =
   | { status: "idle"; message: string }
@@ -54,12 +54,6 @@ const axisShortLabels = {
   scope: "Scope",
 } as const;
 
-const summaryMetrics = [
-  { label: "Budget & scope", axes: ["budget", "scope"] as const },
-  { label: "Client trust", axes: ["trust", "morale"] as const },
-  { label: "Delivery quality", axes: ["timeline", "quality"] as const },
-] as const;
-
 const clientSprites = [
   { x: 24, y: 0 },
   { x: 24, y: 3 },
@@ -81,17 +75,6 @@ const clientPreferenceHints: Record<string, string> = {
   "allergy-list": "They value visible ownership more than vague reassurance.",
   "signature-delay": "They need one controlled deadline, not another open-ended revision.",
 };
-
-const clientProfiles = [
-  { name: "Maya Sterling" },
-  { name: "Jonas Berg" },
-  { name: "Priya Shah" },
-  { name: "Elena Rossi" },
-  { name: "Marcus Chen" },
-  { name: "Sofia Lind" },
-  { name: "Alex Morgan" },
-  { name: "Daniel Wright" },
-] as const;
 
 type DifficultyId = "easy" | "normal" | "hell";
 type GameScreen = "home" | "playing";
@@ -152,7 +135,6 @@ export function ClientFromHellGame() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [runId, setRunId] = useState(createRunId);
   const [state, setState] = useState<GameState>(() => createInitialGameState([]));
-  const [lastChoice, setLastChoice] = useState<ScenarioChoice | null>(null);
   const [pendingResolution, setPendingResolution] = useState<PendingResolution | null>(null);
   const [resolutionRevealed, setResolutionRevealed] = useState(false);
   const [handoff, setHandoff] = useState<HandoffState>({
@@ -247,7 +229,7 @@ export function ClientFromHellGame() {
   const progress = Math.min(result.answeredCount + 1, result.scenarioCount);
 
   function choose(scenario: ScenarioDefinition, choice: ScenarioChoice) {
-    if (isTransitioning || pendingResolution) return;
+    if (isTransitioning || resolutionRevealed) return;
 
     const nextState = answerScenario(state, scenario.id, choice.id, activeScenarios);
     const nextResult = getGameResult(nextState, activeScenarios);
@@ -265,7 +247,6 @@ export function ClientFromHellGame() {
       nextRank,
     };
 
-    setLastChoice(choice);
     setPendingResolution(resolution);
     setResolutionRevealed(false);
     playEffect(selectRef);
@@ -273,7 +254,7 @@ export function ClientFromHellGame() {
 
   function revealResolution() {
     if (!pendingResolution || resolutionRevealed || isTransitioning) return;
-    const { kind, choice, scoreDelta, previousRank, nextRank } = pendingResolution;
+    const { kind, choice, scoreDelta, previousRank, nextRank, nextState } = pendingResolution;
 
     setResolutionRevealed(true);
     setIsTransitioning(true);
@@ -298,22 +279,15 @@ export function ClientFromHellGame() {
         previousRank,
         nextRank,
       });
-    }, 900);
+    }, 1000);
 
     scheduleTransition(() => {
+      setState(nextState);
+      setPendingResolution(null);
+      setResolutionRevealed(false);
       setTransition(null);
       setIsTransitioning(false);
-    }, 2100);
-  }
-
-  function continueGame() {
-    if (!pendingResolution || !resolutionRevealed || isTransitioning) return;
-    playEffect(selectRef);
-    setState(pendingResolution.nextState);
-    setPendingResolution(null);
-    setResolutionRevealed(false);
-    setLastChoice(null);
-    setTransition(null);
+    }, 2600);
   }
 
   function reset() {
@@ -322,7 +296,6 @@ export function ClientFromHellGame() {
     setRunId(createRunId());
     setTransition(null);
     setIsTransitioning(false);
-    setLastChoice(null);
     setPendingResolution(null);
     setResolutionRevealed(false);
     setDebrief({ status: "idle" });
@@ -340,7 +313,6 @@ export function ClientFromHellGame() {
     setRunId(createRunId());
     setTransition(null);
     setIsTransitioning(false);
-    setLastChoice(null);
     setPendingResolution(null);
     setResolutionRevealed(false);
     setDebrief({ status: "idle" });
@@ -355,7 +327,6 @@ export function ClientFromHellGame() {
     clearPendingTransition();
     playEffect(selectRef);
     setScreen("home");
-    setLastChoice(null);
     setPendingResolution(null);
     setResolutionRevealed(false);
     setTransition(null);
@@ -516,7 +487,6 @@ export function ClientFromHellGame() {
           onMusicToggle={toggleMusic}
           onVolumeChange={setVolume}
         />
-        <CommunityHub run={null} theme={theme} />
       </>
     );
   }
@@ -525,7 +495,6 @@ export function ClientFromHellGame() {
     ? Math.max(0, activeScenarios.findIndex((scenario) => scenario.id === currentScenario.id))
     : Math.max(0, result.scenarioCount - 1);
   const bossSprite = clientSprites[clientIndex % clientSprites.length];
-  const clientProfile = clientProfiles[clientIndex % clientProfiles.length];
   const clientPreferenceHint = currentScenario
     ? clientPreferenceHints[currentScenario.id]
     : "They are ready for a clear handoff.";
@@ -541,16 +510,6 @@ export function ClientFromHellGame() {
   const hellLevel =
     hellIntensity >= 0.72 ? "critical" : hellIntensity >= 0.4 ? "rising" : "low";
   const clientEmotion = getClientEmotion(displayedResult, transition);
-  const resultDelta = resolutionRevealed && pendingResolution ? lastChoice?.delta : undefined;
-  const rankChanged =
-    transition?.phase === "result" &&
-    transition.previousRank !== transition.nextRank;
-  const rankDirection = rankChanged
-    ? (transition.scoreDelta ?? 0) >= 0
-      ? "up"
-      : "down"
-    : null;
-
   return (
     <>
       {audioElements}
@@ -564,11 +523,6 @@ export function ClientFromHellGame() {
           <button type="button" className="cfh-title-link" onClick={openMenu}>Client From Hell</button>
         </div>
         <div className="cfh-topbar-actions">
-          <CommunityHub
-            inline
-            theme={theme}
-            run={state.status === "complete" ? { runId, difficulty, answers: state.answers } : null}
-          />
           {difficulty === "hell" ? (
             <div
               className="cfh-pressure"
@@ -593,6 +547,7 @@ export function ClientFromHellGame() {
           </button>
           <AudioControls
             compact
+            run={state.status === "complete" ? { runId, difficulty, answers: state.answers } : null}
             theme={theme}
             musicEnabled={musicEnabled}
             volume={volume}
@@ -608,9 +563,6 @@ export function ClientFromHellGame() {
           <div className="cfh-client-profile">
             <div className={`cfh-avatar-stage is-${clientEmotion}`} aria-label={`Client emotion: ${clientEmotion}`}>
               <PixelSprite key={currentScenario?.id ?? "final-client"} x={bossSprite.x} y={bossSprite.y} className="cfh-boss-sprite" />
-            </div>
-            <div className="cfh-client-identity">
-              <strong>{clientProfile.name}</strong>
             </div>
           </div>
           {currentScenario ? (
@@ -650,7 +602,7 @@ export function ClientFromHellGame() {
                     type="button"
                     className={`cfh-choice cfh-tone-${choice.tone}${pendingResolution?.choice.id === choice.id ? resolutionRevealed ? ` is-${pendingResolution.kind}` : " is-selected" : ""}`}
                     onClick={() => choose(currentScenario, choice)}
-                    disabled={isTransitioning || Boolean(pendingResolution)}
+                    disabled={isTransitioning || resolutionRevealed}
                   >
                     <span>{choice.tone}</span>
                     <strong>{choice.label}</strong>
@@ -665,24 +617,6 @@ export function ClientFromHellGame() {
                     Next <ArrowRight aria-hidden="true" size={18} />
                   </button>
                 </div>
-              ) : null}
-              {lastChoice && pendingResolution && resolutionRevealed ? (
-                <div className="cfh-resolution" aria-live="polite">
-                  <p>{reactionFor(lastChoice, displayedResult)}</p>
-                  <button type="button" onClick={continueGame} disabled={isTransitioning}>
-                    {pendingResolution.nextState.status === "complete" ? "See results" : "Continue"}
-                    <ArrowRight aria-hidden="true" size={18} />
-                  </button>
-                </div>
-              ) : null}
-              {pendingResolution && resolutionRevealed ? (
-                <CompactScoreboard
-                  result={displayedResult}
-                  transition={transition}
-                  rankChanged={rankChanged}
-                  rankDirection={rankDirection}
-                  delta={resultDelta}
-                />
               ) : null}
             </>
           ) : (
@@ -701,38 +635,6 @@ export function ClientFromHellGame() {
       </section>
       </main>
     </>
-  );
-}
-
-function CompactScoreboard({
-  result,
-  transition,
-  rankChanged,
-  rankDirection,
-  delta,
-}: {
-  result: GameResult;
-  transition: GameTransition | null;
-  rankChanged: boolean;
-  rankDirection: "up" | "down" | null;
-  delta?: ScenarioChoice["delta"];
-}) {
-  return (
-    <aside className="cfh-scoreboard" aria-label="Current score and proposal health">
-      <div className={`cfh-rank${transition?.phase === "result" ? " is-updating" : ""}${rankChanged ? ` is-changing is-rank-${rankDirection}` : ""}`}>
-        <span>Rank</span>
-        <strong key={rankLetter(result.total)}>{rankLetter(result.total)}</strong>
-        <small>{result.total}/100</small>
-      </div>
-      {summaryMetrics.map((metric) => (
-        <Meter
-          key={metric.label}
-          label={metric.label}
-          value={averagePair(result.axes, metric.axes)}
-          delta={delta ? averagePair(delta, metric.axes) : undefined}
-        />
-      ))}
-    </aside>
   );
 }
 
@@ -766,6 +668,7 @@ function HomeScreen({
   return (
     <main className={`cfh-home cfh-theme-${theme}`}>
       <AudioControls
+        run={null}
         theme={theme}
         musicEnabled={musicEnabled}
         volume={volume}
@@ -825,6 +728,7 @@ function HomeScreen({
 }
 
 function AudioControls({
+  run,
   theme,
   musicEnabled,
   volume,
@@ -833,6 +737,7 @@ function AudioControls({
   onMusicToggle,
   onVolumeChange,
 }: {
+  run: CompletedRun | null;
   theme: ThemeId;
   musicEnabled: boolean;
   volume: number;
@@ -897,6 +802,7 @@ function AudioControls({
             onInput={(event) => onVolumeChange(Number(event.currentTarget.value))}
           />
         </label>
+        <CommunityHub mode="settings" run={run} theme={theme} />
       </div>
     </details>
   );
@@ -961,13 +867,6 @@ function StatPreview({ delta }: { delta: ScenarioChoice["delta"] }) {
 
 function choiceOrder(tone: ScenarioChoice["tone"]): number {
   return tone === "professional" ? 0 : tone === "risky" ? 1 : 2;
-}
-
-function averagePair(
-  values: Partial<Record<(typeof scoreAxisIds)[number], number>>,
-  axes: readonly [(typeof scoreAxisIds)[number], (typeof scoreAxisIds)[number]],
-): number {
-  return Math.round(((values[axes[0]] ?? 0) + (values[axes[1]] ?? 0)) / 2);
 }
 
 function PixelSprite({
@@ -1092,44 +991,6 @@ function getClientEmotion(
   return "neutral";
 }
 
-function Meter({
-  label,
-  value,
-  delta,
-}: {
-  label: string;
-  value: number;
-  delta?: number;
-}) {
-  const tone = value >= 72 ? "good" : value >= 48 ? "warn" : "danger";
-
-  return (
-    <div className="cfh-meter">
-      <div>
-        <span>{label}</span>
-        <span className="cfh-meter-value">
-          {delta ? (
-            <i className={delta > 0 ? "is-positive" : "is-negative"}>
-              {delta > 0 ? "+" : ""}{delta}
-            </i>
-          ) : null}
-          <strong key={value}>{value}</strong>
-        </span>
-      </div>
-      <div
-        className="cfh-meter-track"
-        role="progressbar"
-        aria-label={label}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={value}
-      >
-        <span className={`cfh-meter-fill ${tone}`} style={{ width: `${value}%` }} />
-      </div>
-    </div>
-  );
-}
-
 function buildFinalProposalPayload(
   state: GameState,
   result: GameResult,
@@ -1199,20 +1060,4 @@ function rankLetter(total: number) {
   if (total >= 55) return "B";
   if (total >= 40) return "C";
   return "D";
-}
-
-function reactionFor(choice: ScenarioChoice, result: GameResult) {
-  if (choice.tone === "risky") {
-    return "The client smiles, procurement opens a second tab, and your margin starts sweating.";
-  }
-
-  if (choice.tone === "generous") {
-    return "They love the flexibility. The proposal quietly asks who is paying for all this kindness.";
-  }
-
-  if (result.total >= 78) {
-    return "The client acts difficult, but the proposal gives them a clean path to yes.";
-  }
-
-  return "Useful move. Now keep the experience premium without letting the scope leak.";
 }

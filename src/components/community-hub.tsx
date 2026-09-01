@@ -58,11 +58,11 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 export function CommunityHub({
   run,
   theme,
-  inline = false,
+  mode = "floating",
 }: {
   run: CompletedRun | null;
   theme: "dark" | "light";
-  inline?: boolean;
+  mode?: "floating" | "settings";
 }) {
   const [player, setPlayer] = useState<Player | null>(null);
   const [sessionReady, setSessionReady] = useState(false);
@@ -272,12 +272,15 @@ export function CommunityHub({
   }
 
   return (
-    <div className={`cfh-community-root cfh-theme-${theme}${inline ? " is-inline" : ""}`}>
+    <div className={`cfh-community-root cfh-theme-${theme}${mode === "settings" ? " is-settings" : ""}`}>
       <div className="cfh-community-bar" aria-label="Player and leaderboard">
-        <button type="button" onClick={() => void openLeaderboard()}>Top scores</button>
+        <button type="button" onClick={() => void openLeaderboard()}>Leaderboard</button>
         {sessionReady ? (
           player ? (
-            <button type="button" onClick={() => void openAccount()}>{player.displayName}</button>
+            <>
+              <button type="button" onClick={() => void openAccount()}>{player.displayName}</button>
+              {mode === "settings" ? <button type="button" onClick={() => void logout()}>Log out</button> : null}
+            </>
           ) : (
             <button type="button" onClick={() => { setMessage(""); setDialog("auth"); }}>Log in</button>
           )
