@@ -1636,7 +1636,9 @@ button:focus-visible {
 .cfh-avatar-stage.is-tense .cfh-emotion-label { color: #11151a; }
 .cfh-client-profile { display: block; }
 .cfh-request { gap: 10px; }
+.cfh-request > .cfh-kicker { font-size: 0.84rem; }
 .cfh-request-categories {
+  order: 3;
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
@@ -1649,7 +1651,7 @@ button:focus-visible {
   background: var(--panel-light);
   color: var(--paper);
   font-family: var(--font-pixel), var(--font-geist-mono), monospace;
-  font-size: 0.78rem;
+  font-size: 0.86rem;
   font-weight: 650;
 }
 .cfh-request p {
@@ -1657,6 +1659,7 @@ button:focus-visible {
   font-weight: 550;
 }
 .cfh-request .cfh-speech-bubble {
+  order: 2;
   position: relative;
   display: grid;
   gap: 11px;
@@ -1669,7 +1672,7 @@ button:focus-visible {
   font-size: 1rem;
   line-height: 1.5;
 }
-.cfh-request .cfh-speech-bubble p { color: #302c37; font-size: 0.92rem; }
+.cfh-request .cfh-speech-bubble p { color: #302c37; font-size: 1rem; }
 .cfh-request .cfh-speech-bubble > p { padding: 0; border: 0; }
 .cfh-request .cfh-speech-bubble::before {
   position: absolute;
