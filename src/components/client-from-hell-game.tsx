@@ -781,13 +781,19 @@ function AudioControls({
         <div className="cfh-settings-title">
           <span>Settings</span>
         </div>
-        <button type="button" onClick={onThemeToggle} aria-pressed={theme === "light"} aria-label={`Use ${theme === "dark" ? "light" : "dark"} mode`}>
-          {theme === "dark" ? <Sun aria-hidden="true" size={17} /> : <Moon aria-hidden="true" size={17} />}
-          {theme === "dark" ? "Light mode" : "Dark mode"}
+        <button className="cfh-toggle" type="button" role="switch" aria-checked={theme === "light"} onClick={onThemeToggle}>
+          <span className="cfh-toggle-label">
+            {theme === "dark" ? <Moon aria-hidden="true" size={17} /> : <Sun aria-hidden="true" size={17} />}
+            Light mode
+          </span>
+          <span className="cfh-toggle-track" aria-hidden="true"><i /></span>
         </button>
-        <button type="button" onClick={onMusicToggle} aria-pressed={musicEnabled}>
-          {musicEnabled ? <Volume2 aria-hidden="true" size={17} /> : <VolumeX aria-hidden="true" size={17} />}
-          {musicEnabled ? "Music on" : "Music off"}
+        <button className="cfh-toggle" type="button" role="switch" aria-checked={musicEnabled} onClick={onMusicToggle}>
+          <span className="cfh-toggle-label">
+            {musicEnabled ? <Volume2 aria-hidden="true" size={17} /> : <VolumeX aria-hidden="true" size={17} />}
+            Music
+          </span>
+          <span className="cfh-toggle-track" aria-hidden="true"><i /></span>
         </button>
         <label>
           <span>Volume <b>{Math.round(volume * 100)}%</b></span>
