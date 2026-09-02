@@ -1489,8 +1489,10 @@ button:focus-visible {
 
 .cfh-playfield {
   display: grid;
-  grid-template-columns: 1fr;
-  grid-template-areas: "boss" "console";
+  grid-template-columns: minmax(0, 1fr) 260px;
+  grid-template-areas:
+    "boss status"
+    "console console";
   gap: 22px;
   align-content: start;
   align-items: stretch;
@@ -1499,6 +1501,7 @@ button:focus-visible {
 .cfh-boss { grid-area: boss; }
 .cfh-console { grid-area: console; }
 .cfh-scoreboard { grid-area: stats; }
+.cfh-status-panel { grid-area: status; }
 
 .cfh-panel {
   padding: clamp(18px, 2vw, 26px);
@@ -1512,8 +1515,58 @@ button:focus-visible {
 .cfh-console { gap: 18px; }
 .cfh-boss {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-columns: 190px minmax(0, 1fr);
   align-items: stretch;
+}
+
+.cfh-status-panel {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--ui-border);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: var(--ui-shadow);
+  font-family: var(--font-geist-mono), monospace;
+}
+.cfh-status-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--ui-border);
+  color: var(--paper);
+}
+.cfh-status-title span { font-size: 0.82rem; font-weight: 700; }
+.cfh-status-title strong {
+  padding: 5px 7px;
+  border-radius: 4px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-size: 0.78rem;
+}
+.cfh-status-list { display: grid; gap: 11px; }
+.cfh-status-meter { display: grid; gap: 5px; }
+.cfh-status-meter > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+.cfh-status-meter b { color: var(--paper); }
+.cfh-status-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--panel-light);
+}
+.cfh-status-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--cyan);
+  transition: width 420ms ease;
 }
 
 .cfh-scoreboard {
@@ -1583,7 +1636,22 @@ button:focus-visible {
 .cfh-avatar-stage.is-tense .cfh-emotion-label { color: #11151a; }
 .cfh-client-profile { display: block; }
 .cfh-request { gap: 10px; }
-.cfh-request h2 { font-size: clamp(1.18rem, 1.8vw, 1.65rem); }
+.cfh-request-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0;
+}
+.cfh-request-categories span {
+  padding: 6px 9px;
+  border: 1px solid var(--ui-border);
+  border-radius: 5px;
+  background: var(--panel-light);
+  color: var(--paper);
+  font-family: var(--font-pixel), var(--font-geist-mono), monospace;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
 .cfh-request p {
   font-size: 0.95rem;
   font-weight: 550;
@@ -1594,15 +1662,14 @@ button:focus-visible {
   gap: 11px;
   margin-top: 8px;
   padding: 17px 18px;
-  border: 2px solid var(--ui-border);
+  border: 2px solid #d5d1dc;
   border-radius: 12px;
-  background: var(--surface-raised);
-  color: var(--paper);
+  background: #fff;
+  color: #18151d;
   font-size: 1rem;
   line-height: 1.5;
 }
-.cfh-request .cfh-speech-bubble h2 { font-size: clamp(1.2rem, 1.65vw, 1.55rem); }
-.cfh-request .cfh-speech-bubble p { color: var(--muted); font-size: 0.9rem; }
+.cfh-request .cfh-speech-bubble p { color: #302c37; font-size: 0.92rem; }
 .cfh-request .cfh-speech-bubble > p { padding: 0; border: 0; }
 .cfh-request .cfh-speech-bubble::before {
   position: absolute;
@@ -1610,9 +1677,9 @@ button:focus-visible {
   top: 27px;
   width: 18px;
   height: 18px;
-  border-left: 1px solid var(--ui-border);
-  border-bottom: 1px solid var(--ui-border);
-  background: var(--surface-raised);
+  border-left: 2px solid #d5d1dc;
+  border-bottom: 2px solid #d5d1dc;
+  background: #fff;
   content: "";
   transform: rotate(45deg);
 }
@@ -1672,16 +1739,25 @@ button:focus-visible {
   text-transform: uppercase;
 }
 
+.cfh-console {
+  padding: 2px 0 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.cfh-console-head { min-height: 28px; justify-content: flex-start; }
+.cfh-console-head .cfh-hint { margin: 0; }
+
 .cfh-choice-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: 20px;
 }
 
 .cfh-choice {
   --choice-accent: var(--cyan);
-  min-height: 220px;
-  gap: 12px;
-  padding: 18px;
+  min-height: 232px;
+  gap: 15px;
+  padding: 21px;
   overflow: hidden;
   border: 1px solid var(--ui-border);
   border-top: 4px solid var(--choice-accent);
@@ -1721,14 +1797,24 @@ button:focus-visible {
   color: var(--choice-accent);
   font-family: var(--font-geist-mono), monospace;
   font-size: 0.68rem;
+  margin-bottom: 3px;
   text-transform: uppercase;
 }
 .cfh-choice strong {
   color: var(--paper);
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-pixel), var(--font-geist-mono), monospace;
   font-size: clamp(1rem, 1.35vw, 1.2rem);
   line-height: 1.18;
   text-transform: uppercase;
+}
+
+.cfh-title-link,
+.cfh-home h1,
+.cfh-kicker,
+.cfh-choice > span,
+.cfh-difficulty-card strong,
+.cfh-start-button {
+  font-family: var(--font-pixel), var(--font-geist-mono), monospace;
 }
 .cfh-choice em {
   display: -webkit-box;
@@ -1968,7 +2054,7 @@ button:focus-visible {
 @media (max-width: 900px) {
   .cfh-playfield {
     grid-template-columns: 1fr;
-    grid-template-areas: "boss" "console";
+    grid-template-areas: "boss" "status" "console";
   }
   .cfh-scoreboard {
     grid-template-columns: 96px repeat(3, minmax(0, 1fr));
@@ -1979,6 +2065,7 @@ button:focus-visible {
     grid-template-columns: 170px minmax(0, 1fr);
     align-items: center;
   }
+  .cfh-status-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 18px; }
   .cfh-avatar-stage { min-height: 142px; }
   .cfh-choice-grid { grid-template-columns: 1fr; }
   .cfh-choice { min-height: auto; }
@@ -2024,7 +2111,7 @@ button:focus-visible {
   .cfh-request .cfh-speech-bubble::before {
     left: 24px;
     top: -11px;
-    border-top: 1px solid var(--ui-border);
+    border-top: 2px solid #d5d1dc;
     border-bottom: 0;
   }
   .cfh-choice-grid { grid-template-columns: 1fr; }

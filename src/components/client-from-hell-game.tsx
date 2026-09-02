@@ -76,6 +76,17 @@ const clientPreferenceHints: Record<string, string> = {
   "signature-delay": "They need one controlled deadline, not another open-ended revision.",
 };
 
+const requestCategories: Record<string, readonly string[]> = {
+  "luxury-shoestring": ["80 guests", "Luxury", "Tight budget"],
+  "conference-hard-cap": ["Conference", "Dinner", "Rooms", "Hard cap"],
+  "surprise-guests": ["Extra guests", "Scope change"],
+  "budget-cut": ["Budget cut", "Last minute"],
+  "vip-joins": ["VIP", "Premium", "New scope"],
+  "final-approval": ["Final proposal", "Multiple changes"],
+  "allergy-list": ["Catering", "Allergies", "Late change"],
+  "signature-delay": ["Signature", "Deadline"],
+};
+
 type DifficultyId = "easy" | "normal" | "hell";
 type GameScreen = "home" | "playing";
 type ThemeId = "dark" | "light";
@@ -539,9 +550,6 @@ export function ClientFromHellGame() {
           <span className={`cfh-difficulty-chip cfh-difficulty-${difficulty}`}>
             {difficulties[difficulty].badge}
           </span>
-          <div className="cfh-round" aria-label={`Round ${progress} of ${result.scenarioCount}`}>
-            Round {progress}/{result.scenarioCount}
-          </div>
           <button type="button" className="cfh-icon-button" onClick={openMenu} aria-label="Back to menu" title="Back to menu">
             <Home aria-hidden="true" size={19} strokeWidth={2.5} />
           </button>
@@ -568,14 +576,14 @@ export function ClientFromHellGame() {
           {currentScenario ? (
             <div className="cfh-request">
               <span className="cfh-kicker">Client request</span>
+              <h2 className="cfh-request-categories" ref={roundHeadingRef} tabIndex={-1} aria-label={currentScenario.title}>
+                {(requestCategories[currentScenario.id] ?? [currentScenario.title]).map((category) => (
+                  <span key={category}>{category}</span>
+                ))}
+              </h2>
               <div className="cfh-speech-bubble">
-                <h2 ref={roundHeadingRef} tabIndex={-1}>{currentScenario.title}</h2>
                 <p>{currentScenario.clientMessage}</p>
               </div>
-              <details className="cfh-hint">
-                <summary>Stuck? Use a hint</summary>
-                <p>{clientPreferenceHint}</p>
-              </details>
             </div>
           ) : (
             <div className="cfh-request cfh-request-complete">
@@ -585,15 +593,16 @@ export function ClientFromHellGame() {
           )}
         </aside>
 
-        <section className="cfh-panel cfh-console" aria-label="Proposal decisions">
+        <StatusPanel result={displayedResult} round={progress} totalRounds={result.scenarioCount} />
+
+        <section className="cfh-console" aria-label="Proposal decisions">
           {currentScenario ? (
             <>
               <div className="cfh-console-head">
-                <div><span className="cfh-kicker">Your response</span></div>
-                <div className="cfh-console-status">
-                  <span className="cfh-mobile-round">Round {progress}/{result.scenarioCount}</span>
-                  <span>Rank {rankLetter(displayedResult.total)} · {displayedResult.total}/100</span>
-                </div>
+                <details className="cfh-hint">
+                  <summary>Stuck? Use a hint</summary>
+                  <p>{clientPreferenceHint}</p>
+                </details>
               </div>
               <div className="cfh-choice-grid">
                 {orderedChoices.map((choice) => (
@@ -635,6 +644,50 @@ export function ClientFromHellGame() {
       </section>
       </main>
     </>
+  );
+}
+
+function StatusPanel({
+  result,
+  round,
+  totalRounds,
+}: {
+  result: GameResult;
+  round: number;
+  totalRounds: number;
+}) {
+  const statuses = [
+    { label: "Score", value: result.total, display: `${result.total}/100` },
+    { label: "Progress", value: Math.round((round / totalRounds) * 100), display: `${round}/${totalRounds}` },
+    { label: "Budget", value: result.axes.budget, display: String(result.axes.budget) },
+    { label: "Trust", value: result.axes.trust, display: String(result.axes.trust) },
+    { label: "Quality", value: result.axes.quality, display: String(result.axes.quality) },
+  ];
+
+  return (
+    <aside className="cfh-status-panel" aria-label="Game status">
+      <div className="cfh-status-title">
+        <span>Status</span>
+        <strong>Rank {rankLetter(result.total)}</strong>
+      </div>
+      <div className="cfh-status-list">
+        {statuses.map((status) => (
+          <div className="cfh-status-meter" key={status.label}>
+            <div><span>{status.label}</span><b>{status.display}</b></div>
+            <div
+              className="cfh-status-track"
+              role="progressbar"
+              aria-label={status.label}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={status.value}
+            >
+              <i style={{ width: `${Math.max(0, Math.min(100, status.value))}%` }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </aside>
   );
 }
 
